@@ -2,28 +2,18 @@ package com.example.paypaycurrencyconverter.mainUseCase
 
 import android.util.Log
 import com.example.paypaycurrencyconverter.helper.ApiEndpoints
-import com.example.paypaycurrencyconverter.viewmodel.CurrencyRepo
+import com.example.paypaycurrencyconverter.local.entity.CurrencyEntity
 import java.io.IOException
+import javax.inject.Inject
 
 interface FetchAllCurrenciesUseCase {
-    suspend operator fun invoke()
+    suspend operator fun invoke() : List<CurrencyEntity>
 }
 
-class FetchAllCurrenciesUseCaseImpl (
+class FetchAllCurrenciesUseCaseImpl @Inject constructor(
         private val currencyRepo: CurrencyRepo
         ): FetchAllCurrenciesUseCase {
-    override suspend fun invoke() {
-
-        try {
-            val response = currencyRepo.getExchangeData(ApiEndpoints.API_KEY,0.0)
-             response.collect {
-                if (it.data. && responseBody != null) {
-                    currencyRepository.insertOrUpdateCurrencies(responseBody.rates)
-                }
-            }
-
-        } catch (ioException: IOException) {
-            Log.d(this.javaClass.simpleName, "Got an exception: $ioException")
-        }
+    override suspend fun invoke() : List<CurrencyEntity>{
+       return currencyRepo.getAllCurrencyData()
     }
 }

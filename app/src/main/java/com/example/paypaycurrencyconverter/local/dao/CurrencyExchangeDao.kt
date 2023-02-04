@@ -24,7 +24,7 @@ interface CurrencyExchangeDao {
          if(localData == null){
             insert(CurrencyEntity(currencyRate.key,currencyRate.value))
          }else {
-
+             update(CurrencyEntity(localData.id, currencyRate.value))
          }
      }
 

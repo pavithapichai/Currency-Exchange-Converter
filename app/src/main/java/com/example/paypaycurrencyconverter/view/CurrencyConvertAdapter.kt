@@ -13,6 +13,11 @@ class CurrencyConvertAdapter : RecyclerView.Adapter<CurrencyConvertAdapter.Curre
     private val currencies = arrayListOf<CurrencyEntity>()
     private lateinit var binding: ItemCurrencyExchangeBinding
 
+    fun setCurrencies(currencies:List<CurrencyEntity>){
+        this.currencies.clear()
+        this.currencies.addAll(currencies)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CurrencyViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         binding = ItemCurrencyExchangeBinding.inflate(inflater,parent,false)
@@ -24,9 +29,8 @@ class CurrencyConvertAdapter : RecyclerView.Adapter<CurrencyConvertAdapter.Curre
         holder.setIsRecyclable( false)
     }
 
-    override fun getItemCount(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getItemCount(): Int  = currencies.size
+
 
     inner class CurrencyViewHolder(view : View) : RecyclerView.ViewHolder(view) {
         fun bindItem(currencyEntity: CurrencyEntity) {

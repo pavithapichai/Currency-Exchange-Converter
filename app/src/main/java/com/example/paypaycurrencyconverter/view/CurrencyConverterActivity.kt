@@ -1,26 +1,33 @@
 package com.example.paypaycurrencyconverter.view
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import android.net.Uri
+
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.paypaycurrencyconverter.CurrencyConverterApplication
 import com.google.android.material.snackbar.Snackbar
 import com.example.paypaycurrencyconverter.R
 import com.example.paypaycurrencyconverter.databinding.ActivityCurrencyConverterBinding
-import com.example.paypaycurrencyconverter.helper.ApiEndpoints
-import com.example.paypaycurrencyconverter.helper.Resource
-import com.example.paypaycurrencyconverter.model.Rates
-import com.example.paypaycurrencyconverter.helper.Helper
-import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
 
-@AndroidEntryPoint
+import com.example.paypaycurrencyconverter.di.AppModule
+import com.example.paypaycurrencyconverter.helper.ApiEndpoints
+import com.example.paypaycurrencyconverter.helper.Helper
+import com.example.paypaycurrencyconverter.local.entity.CurrencyEntity
+import com.example.paypaycurrencyconverter.viewmodel.CurrencyConverterViewModelFactory
+
+import java.util.*
+import javax.inject.Inject
+
+
 class CurrencyConverterActivity : AppCompatActivity() {
 
     //Declare all variables
@@ -32,9 +39,13 @@ class CurrencyConverterActivity : AppCompatActivity() {
     //Selected country string, default is Afghanistan, since its the first country listed in the spinner
     private var selectedItem1: String? = "AFN"
     private var selectedItem2: String? = "AFN"
-
+    @Inject
+    lateinit var viewModelFactory: CurrencyConverterViewModelFactory
     //ViewModel
-    private val currencyViewModel: CurrencyConverterViewModel by viewModels()
+    private lateinit var  currencyViewModel :CurrencyConverterViewModel
+
+    private lateinit var adapter: CurrencyConvertAdapter
+    private val currencies = arrayListOf<CurrencyEntity>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -49,13 +60,56 @@ class CurrencyConverterActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+       setupInject()
+        setupViewModel()
+        setupList()
+        setupTextWatcher()
         //Initialize both Spinner
-        initSpinner()
+       // initSpinner()
 
         //Listen to click events
-        setUpClickListener()
+       // setUpClickListener()
+        loadData()
     }
 
+
+    private fun setupInject() {
+        (application as CurrencyConverterApplication).applicationComponent.inject(this)
+    }
+     fun setupViewModel(){
+        currencyViewModel = ViewModelProvider(this,viewModelFactory) // Create reference wrt current fragment
+             .get(CurrencyConverterViewModel::class.java)
+
+    }
+
+    private fun setupList() {
+        adapter = CurrencyConvertAdapter()
+        binding.currenciesList.layoutManager = GridLayoutManager(this, 3)
+        binding.currenciesList.adapter = adapter
+    }
+
+    private fun setupTextWatcher() {
+        binding.txtAmount.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(p0: Editable?) {
+                val amount = p0.toString()
+                if (currencies.isNotEmpty() && amount.isNotEmpty()) {
+                    val rates = amount.toDouble()
+
+                    val newData = currencies.map {
+                        CurrencyEntity(it.id, it.baseRate * rates) }
+                    refreshData(newData)
+                }
+            }
+        })
+    }
+    private fun refreshData(newData: List<CurrencyEntity>) {
+        binding.currenciesList.removeAllViews()
+        adapter.setCurrencies(newData)
+        adapter.notifyDataSetChanged()
+    }
 
     /**
      * This method does everything required for handling spinner (Dropdown list) - showing list of countries, handling click events on items selected.*
@@ -93,17 +147,17 @@ class CurrencyConverterActivity : AppCompatActivity() {
 //        }
 
         //set items on second spinner i.e - a list of all countries
-        spinner2.setItems( getAllCountries() )
+        //spinner2.setItems( getAllCountries() )
 
 
-        //Handle selected item, by getting the item and storing the value in a  variable - selectedItem2,
-        spinner2.setOnItemSelectedListener { view, position, id, item ->
-            //Set the currency code for each country as hint
-            val countryCode = getCountryCode(item.toString())
-            val currencySymbol = getSymbol(countryCode)
-            selectedItem2 = currencySymbol
-            binding.txtSecondCurrencyName.setText(selectedItem2)
-        }
+//        //Handle selected item, by getting the item and storing the value in a  variable - selectedItem2,
+//        spinner2.setOnItemSelectedListener { view, position, id, item ->
+//            //Set the currency code for each country as hint
+//            val countryCode = getCountryCode(item.toString())
+//            val currencySymbol = getSymbol(countryCode)
+//            selectedItem2 = currencySymbol
+//          //  binding.txtSecondCurrencyName.setText(selectedItem2)
+//        }
 
     }
 
@@ -121,7 +175,26 @@ class CurrencyConverterActivity : AppCompatActivity() {
         }
         return ""
     }
+    private fun loadData() {
+        binding.prgLoading.visibility = View.VISIBLE
+        currencyViewModel.getAllData()
+        currencyViewModel.currencyData.observe(this) { data ->
+            currencies.addAll(data)
+            refreshData(currencies)
 
+            // Setup Spinner
+            val codes = currencies.map { it.id }
+            val spinnerAdapter = ArrayAdapter(
+                this,
+                android.R.layout.simple_spinner_item,
+                codes
+            )
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spnSecondCountry.adapter = spinnerAdapter
+            binding.spnSecondCountry.setSelection(codes.indexOf("USD"))
+            binding.prgLoading.visibility = View.GONE
+        }
+    }
 
     /**
      * A method for getting a country's code from the country name
@@ -157,10 +230,10 @@ class CurrencyConverterActivity : AppCompatActivity() {
     private fun setUpClickListener(){
 
         //Convert button clicked - check for empty string and internet then do the conersion
-        binding.btnConvert.setOnClickListener {
+     /*   binding.btnConvert.setOnClickListener {
 
             //check if the input is empty
-            val numberToConvert = binding.etFirstCurrency.text.toString()
+            val numberToConvert = binding.txtAmount.text.toString()
 
             if(numberToConvert.isEmpty() || numberToConvert == "0"){
                 Snackbar.make(binding.mainLayout,"Input a value in the first text field, result will be shown in the second text field", Snackbar.LENGTH_LONG)
@@ -185,7 +258,7 @@ class CurrencyConverterActivity : AppCompatActivity() {
 
 
         //handle clicks of other views
-     /*   binding.txtContact.setOnClickListener {
+       binding.txtContact.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             val data: Uri = Uri.parse("mailto:ibrajix@gmail.com?subject=Hello")
             intent.data = data
@@ -208,21 +281,21 @@ class CurrencyConverterActivity : AppCompatActivity() {
         binding.prgLoading.visibility = View.VISIBLE
 
         //make button invisible
-        binding.btnConvert.visibility = View.GONE
+       // binding.btnConvert.visibility = View.GONE
 
         //Get the data inputed
         val apiKey = ApiEndpoints.API_KEY
         val from = selectedItem1.toString()
         val to = selectedItem2.toString()
-        val amount = binding.etFirstCurrency.text.toString().toDouble()
+        val amount = binding.txtAmount.text.toString().toDouble()
 
         //do the conversion
         //currencyViewModel.getConvertedData(apiKey, from, to, amount)
 
-        currencyViewModel.getExchangeData(apiKey, amount)
+        currencyViewModel.getAllData()
 
         //observe for changes in UI
-        observeUi(to)
+        //observeUi(to)
 
     }
 
@@ -231,80 +304,80 @@ class CurrencyConverterActivity : AppCompatActivity() {
      *
      */
 
-    @SuppressLint("SetTextI18n")
-    private fun observeUi(to:String) {
-
-        currencyViewModel.exchangeData.observe(this, androidx.lifecycle.Observer {result ->
-
-            when(result.status){
-                Resource.Status.SUCCESS -> {
-                   // if (result.data?.status == "success"){
-
-                    val map: Map<String, Double>
-
-                    Log.e("to","it");
-
-                    map = result.data!!.rates
-                    map.keys.forEach {
-                       // Log.e("toaa",it);
-
-                        if(it == to){
-                                Log.e("touu",it)
-                                val rateForAmount = map[it]
-
-                                currencyViewModel.convertedRate.value = rateForAmount
-
-                                //format the result obtained e.g 1000 = 1,000
-                                val formattedString = String.format("%,.2f", currencyViewModel.convertedRate.value)
-                            Log.e("touu",formattedString);
-                                //set the value in the second edit text field
-                                binding.etSecondCurrency.setText(formattedString)
-                            }
-
-
-                        }
-
-
-                        //stop progress bar
-                        binding.prgLoading.visibility = View.GONE
-                        //show button
-                        binding.btnConvert.visibility = View.VISIBLE
-                   // }
-//                     if(result.data?.status == "fail"){
-//                        val layout = binding.mainLayout
-//                        Snackbar.make(layout,"Ooops! something went wrong, Try again", Snackbar.LENGTH_LONG)
-//                            .withColor(ContextCompat.getColor(this, R.color.dark_red))
-//                            .setTextColor(ContextCompat.getColor(this, R.color.white))
-//                            .show()
+//    @SuppressLint("SetTextI18n")
+//    private fun observeUi(to:String) {
+//
+//        currencyViewModel.currencyData.observe(this, androidx.lifecycle.Observer {result ->
+//
+//            when(result.status){
+//                Resource.Status.SUCCESS -> {
+//                   // if (result.data?.status == "success"){
+//
+//                    val map: Map<String, Double>
+//
+//                    Log.e("to","it");
+//
+//                    map = result.cur!!.rates
+//                    map.keys.forEach {
+//                       // Log.e("toaa",it);
+//
+//                        if(it == to){
+//                                Log.e("touu",it)
+//                                val rateForAmount = map[it]
+//
+//                                currencyViewModel.convertedRate.value = rateForAmount
+//
+//                                //format the result obtained e.g 1000 = 1,000
+//                                val formattedString = String.format("%,.2f", currencyViewModel.convertedRate.value)
+//                            Log.e("touu",formattedString);
+//                                //set the value in the second edit text field
+//                                binding.etSecondCurrency.setText(formattedString)
+//                            }
+//
+//
+//                        }
+//
 //
 //                        //stop progress bar
 //                        binding.prgLoading.visibility = View.GONE
 //                        //show button
 //                        binding.btnConvert.visibility = View.VISIBLE
-//                    }
-                }
-                Resource.Status.ERROR -> {
-
-                    val layout = binding.mainLayout
-                    Snackbar.make(layout,  "Oopps! Something went wrong, Try again", Snackbar.LENGTH_LONG)
-                        .withColor(ContextCompat.getColor(this, R.color.dark_red))
-                        .setTextColor(ContextCompat.getColor(this, R.color.white))
-                        .show()
-                    //stop progress bar
-                    binding.prgLoading.visibility = View.GONE
-                    //show button
-                    binding.btnConvert.visibility = View.VISIBLE
-                }
-
-                Resource.Status.LOADING -> {
-                    //stop progress bar
-                    binding.prgLoading.visibility = View.VISIBLE
-                    //show button
-                    binding.btnConvert.visibility = View.GONE
-                }
-            }
-        })
-    }
+//                   // }
+////                     if(result.data?.status == "fail"){
+////                        val layout = binding.mainLayout
+////                        Snackbar.make(layout,"Ooops! something went wrong, Try again", Snackbar.LENGTH_LONG)
+////                            .withColor(ContextCompat.getColor(this, R.color.dark_red))
+////                            .setTextColor(ContextCompat.getColor(this, R.color.white))
+////                            .show()
+////
+////                        //stop progress bar
+////                        binding.prgLoading.visibility = View.GONE
+////                        //show button
+////                        binding.btnConvert.visibility = View.VISIBLE
+////                    }
+//                }
+//                Resource.Status.ERROR -> {
+//
+//                    val layout = binding.mainLayout
+//                    Snackbar.make(layout,  "Oopps! Something went wrong, Try again", Snackbar.LENGTH_LONG)
+//                        .withColor(ContextCompat.getColor(this, R.color.dark_red))
+//                        .setTextColor(ContextCompat.getColor(this, R.color.white))
+//                        .show()
+//                    //stop progress bar
+//                    binding.prgLoading.visibility = View.GONE
+//                    //show button
+//                    binding.btnConvert.visibility = View.VISIBLE
+//                }
+//
+//                Resource.Status.LOADING -> {
+//                    //stop progress bar
+//                    binding.prgLoading.visibility = View.VISIBLE
+//                    //show button
+//                    binding.btnConvert.visibility = View.GONE
+//                }
+//            }
+//        })
+//    }
 
     /**
      * Method for changing the background color of snackBars
