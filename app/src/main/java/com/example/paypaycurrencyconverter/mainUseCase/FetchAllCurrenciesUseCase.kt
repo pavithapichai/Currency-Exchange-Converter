@@ -1,9 +1,6 @@
 package com.example.paypaycurrencyconverter.mainUseCase
 
-import android.util.Log
-import com.example.paypaycurrencyconverter.helper.ApiEndpoints
 import com.example.paypaycurrencyconverter.local.entity.CurrencyEntity
-import java.io.IOException
 import javax.inject.Inject
 
 interface FetchAllCurrenciesUseCase {

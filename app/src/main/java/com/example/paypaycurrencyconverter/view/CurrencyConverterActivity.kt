@@ -59,11 +59,9 @@ class CurrencyConverterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         //Make status bar transparent
         Helper.makeStatusBarTransparent(this)
-
         _binding = ActivityCurrencyConverterBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
         setupInject()
         setupViewModel()
         setupList()
@@ -93,7 +91,6 @@ class CurrencyConverterActivity : AppCompatActivity() {
         binding.txtAmount.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
             override fun afterTextChanged(p0: Editable?) {
                 val amount = p0.toString()
                 if (currencies.isNotEmpty() && amount.isNotEmpty()) {
@@ -112,8 +109,8 @@ class CurrencyConverterActivity : AppCompatActivity() {
          val rates = binding.txtAmount.text.toString().toDouble()
          val eRate = currencies[pos].baseRate * rates
          val res = DecimalFormat("#.###").format(eRate)
-         val temp = binding.txtAmount.text.toString() + " USD" + " = "+ res + " " + currencies[pos].id
-         binding.convertTo.text = temp
+         val convertedRateText = binding.txtAmount.text.toString() + " USD" + " = "+ res + " " + currencies[pos].id
+         binding.convertTo.text = convertedRateText
      }
     private fun refreshData(newData: List<CurrencyEntity>) {
         binding.currenciesList.removeAllViews()

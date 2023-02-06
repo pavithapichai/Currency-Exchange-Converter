@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.paypaycurrencyconverter.mainUseCase.FetchAllCurrenciesUseCase
 import com.example.paypaycurrencyconverter.mainUseCase.FetchCurrencyUseCase
 import com.example.paypaycurrencyconverter.view.CurrencyConverterViewModel
-import javax.inject.Inject
 
 class CurrencyConverterViewModelFactory  (
     private val fetchAllCurrencyUseCase: FetchAllCurrenciesUseCase,

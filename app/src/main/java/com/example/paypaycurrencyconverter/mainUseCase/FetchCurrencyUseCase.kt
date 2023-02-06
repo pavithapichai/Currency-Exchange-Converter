@@ -16,9 +16,8 @@ class FetchCurrencyUseCaseImpl @Inject constructor(private val currencyRepo:Curr
     override suspend fun invoke() {
         try {
             val response = currencyRepo.getDataFromApi()
-            val responseBody = response.body()
-                if (response.isSuccessful &&  responseBody != null) {
-                    currencyRepo.insertOrUpdateCurrencies(responseBody.rates)
+                if (response.isSuccessful &&  response.body() != null) {
+                    currencyRepo.insertOrUpdateCurrencies(response.body()!!.rates)
                 }
 
 

@@ -1,9 +1,7 @@
 package com.example.paypaycurrencyconverter.mainUseCase
-import com.example.paypaycurrencyconverter.helper.ApiEndpoints
 import com.example.paypaycurrencyconverter.helper.Resource
 import com.example.paypaycurrencyconverter.local.dao.CurrencyExchangeDao
 import com.example.paypaycurrencyconverter.local.entity.CurrencyEntity
-import com.example.paypaycurrencyconverter.model.ApiResponse
 import com.example.paypaycurrencyconverter.network.ApiDataSource
 import com.example.paypaycurrencyconverter.network.BaseDataSource
 import kotlinx.coroutines.Dispatchers

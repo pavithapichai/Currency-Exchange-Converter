@@ -1,10 +1,8 @@
 package com.example.paypaycurrencyconverter.mainUseCase
 
 
-import android.util.Log
 import com.example.paypaycurrencyconverter.local.dao.CurrencyExchangeDao
 import com.example.paypaycurrencyconverter.local.entity.CurrencyEntity
-import com.example.paypaycurrencyconverter.model.ApiResponse
 import com.example.paypaycurrencyconverter.model.ExchangeRatesApi
 import com.example.paypaycurrencyconverter.network.ApiDataSource
 import com.example.paypaycurrencyconverter.network.ApiService

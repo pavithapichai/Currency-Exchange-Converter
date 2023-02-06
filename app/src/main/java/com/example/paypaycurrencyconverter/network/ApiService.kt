@@ -1,8 +1,5 @@
 package com.example.paypaycurrencyconverter.network
 
-import com.example.paypaycurrencyconverter.helper.ApiEndpoints
-
-import com.example.paypaycurrencyconverter.model.ApiResponse
 import com.example.paypaycurrencyconverter.model.ExchangeRatesApi
 import retrofit2.Response
 import retrofit2.http.GET

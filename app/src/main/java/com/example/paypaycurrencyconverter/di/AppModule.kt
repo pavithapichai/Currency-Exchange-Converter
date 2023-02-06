@@ -2,15 +2,14 @@ package com.example.paypaycurrencyconverter.di
 
 
 import android.content.Context
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.example.paypaycurrencyconverter.BuildConfig
 import com.example.paypaycurrencyconverter.helper.ApiEndpoints
 import com.example.paypaycurrencyconverter.network.ApiDataSource
 import com.example.paypaycurrencyconverter.network.ApiService
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
-
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
@@ -19,7 +18,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
@@ -29,8 +27,6 @@ import javax.inject.Singleton
 
 @Module
 class AppModule(private val context: Context) {
-
-
 
     //API Base Url
     @Provides
