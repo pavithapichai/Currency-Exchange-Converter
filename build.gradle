@@ -3,6 +3,9 @@
 buildscript {
     ext.kotlin_version = "1.3.72"
     ext.daggerVersion = '2.44.2'
+    ext.work_manager_version = '2.7.1'
+    ext.coroutinesVersion = '1.3.9'
+    ext.roomDbVersion = '2.5.0'
     repositories {
         google()
         mavenCentral()

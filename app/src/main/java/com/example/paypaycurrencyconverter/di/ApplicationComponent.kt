@@ -5,6 +5,7 @@ import com.example.paypaycurrencyconverter.local.AppDataBase
 import com.example.paypaycurrencyconverter.local.DataBaseModule
 import com.example.paypaycurrencyconverter.view.CurrencyConverterActivity
 import com.example.paypaycurrencyconverter.mainUseCase.CurrencyModule
+import com.example.paypaycurrencyconverter.mainUseCase.workmanager.CurrencyWorkerFactory
 
 
 import dagger.Component
@@ -23,7 +24,7 @@ import javax.inject.Singleton
 )
 interface ApplicationComponent {
     fun appDatabase(): AppDataBase
-   // fun getFetchCurrencyWorkerFactory(): FetchCurrencyWorkerFactory
+    fun getCurrencyWorkerFactory(): CurrencyWorkerFactory
 
     fun inject(activity: CurrencyConverterActivity)
 }

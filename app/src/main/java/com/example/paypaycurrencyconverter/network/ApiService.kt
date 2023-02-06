@@ -10,10 +10,6 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    @GET("currencies.json")
-    suspend fun convertCurrency(
-    ) : Response<ApiResponse>
-
     @GET("latest.json")
     suspend fun getExchangeRate(
         @Query("app_id") app_id: String,

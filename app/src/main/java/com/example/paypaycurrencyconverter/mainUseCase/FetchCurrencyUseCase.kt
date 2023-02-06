@@ -15,14 +15,14 @@ interface FetchCurrencyUseCase {
 class FetchCurrencyUseCaseImpl @Inject constructor(private val currencyRepo:CurrencyRepo) : FetchCurrencyUseCase,BaseDataSource(){
     override suspend fun invoke() {
         try {
-          val response = currencyRepo.getExchangeCurrencyData().collect{
-              if(it.data !=null && !it.data.rates.isEmpty()){
-                currencyRepo.insertOrUpdateCurrencies(it.data.rates)
-              }
-          }
+            val response = currencyRepo.getDataFromApi()
+            val responseBody = response.body()
+                if (response.isSuccessful &&  responseBody != null) {
+                    currencyRepo.insertOrUpdateCurrencies(responseBody.rates)
+                }
 
 
-        } catch (ioException: IOException){
+        } catch (ioException: java.io.IOException) {
             Log.d(this.javaClass.simpleName, "Got an exception: $ioException")
         }
 

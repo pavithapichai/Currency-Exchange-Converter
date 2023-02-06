@@ -1,6 +1,7 @@
 package com.example.paypaycurrencyconverter.mainUseCase
 
 import com.example.paypaycurrencyconverter.local.dao.CurrencyExchangeDao
+import com.example.paypaycurrencyconverter.mainUseCase.workmanager.CurrencyWorkerFactory
 
 import com.example.paypaycurrencyconverter.network.ApiDataSource
 
@@ -38,6 +39,13 @@ class CurrencyModule {
         currencyRepository: CurrencyRepo
     ): FetchAllCurrenciesUseCase {
         return FetchAllCurrenciesUseCaseImpl(currencyRepository)
+    }
+
+    @Provides
+    fun providesFetchCurrencyWorkerFactory(
+        fetchCurrenciesUseCase: FetchCurrencyUseCase
+    ): CurrencyWorkerFactory {
+        return CurrencyWorkerFactory(fetchCurrenciesUseCase)
     }
 
 

@@ -1,4 +1,5 @@
 package com.example.paypaycurrencyconverter.mainUseCase
+import com.example.paypaycurrencyconverter.helper.ApiEndpoints
 import com.example.paypaycurrencyconverter.helper.Resource
 import com.example.paypaycurrencyconverter.local.dao.CurrencyExchangeDao
 import com.example.paypaycurrencyconverter.local.entity.CurrencyEntity
@@ -19,23 +20,25 @@ interface ICurrencyRepository {
     suspend fun getExchangeCurrencyData(): Flow<Resource<ExchangeRatesApi>>
     suspend fun insertOrUpdateCurrencies(currencies: Map<String, Double>)
     suspend fun getAllCurrencyData(): List<CurrencyEntity>
+    suspend fun getDataFromApi() :Response<ExchangeRatesApi>
 }
 class CurrencyRepo @Inject constructor(
     private val currencyDao: CurrencyExchangeDao,
     private val apiDataSource:ApiDataSource,
     private val dispatcher: CoroutineDispatcher
     ):BaseDataSource() , ICurrencyRepository{
-    //Using coroutines flow to get the response from
-    suspend fun getConvertedData(access_key: String, from: String, to: String, amount: Double): Flow<Resource<ApiResponse>> {
-        return flow {
-            emit(safeApiCall { apiDataSource.getConvertedRate(access_key, from, to, amount) })
-        }.flowOn(Dispatchers.IO)
-    }
+
 
     override suspend fun getExchangeCurrencyData(): Flow<Resource<ExchangeRatesApi>> {
         return flow {
             emit(safeApiCall { apiDataSource.getExchangeRate() })
         }.flowOn(Dispatchers.IO)
+    }
+    override suspend fun getDataFromApi () : Response<ExchangeRatesApi>{
+        return withContext(dispatcher){
+            apiDataSource.getExchangeRate()
+        }
+
     }
 
     override suspend fun getAllCurrencyData () : List<CurrencyEntity>{
@@ -50,4 +53,7 @@ class CurrencyRepo @Inject constructor(
             currencyDao.insertOrUpdate(currencies)
         }
     }
+
+
+
 }

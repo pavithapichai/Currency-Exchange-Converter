@@ -11,8 +11,11 @@
     <string name="converter">Converter</string>
     <string name="from">From</string>
     <string name="to">To</string>
-    <string name="amount">Amount</string>
+    <string name="amount">Enter amount</string>
     <string name="base">USD</string>
     <string name="result">Result</string>
+
+    <string name="title">All Currencies</string>
     <string name="converted_amount">Converted Amount</string>
+    <string name="enter_amount_here">Enter amount here...</string>
 </resources>

@@ -38,10 +38,18 @@ android {
     dataBinding {
         enabled = true
     }
-
-//    buildTypes.each {
-//        it.buildConfigField 'String', 'API_TOKEN', "\"9d0925d85feb48a3a837828b401cdf68\""
-//    }
+    buildTypes {
+        debug {
+            buildConfigField "String", "API_BASE", '"https://openexchangerates.org/api/"'
+            buildConfigField "String", "APP_ID", '"d5b3291bee144b5d9bd7fe31d05eddb2"'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "API_BASE", '"https://openexchangerates.org/api/"'
+            buildConfigField "String", "APP_ID", '"d5b3291bee144b5d9bd7fe31d05eddb2"'
+        }
+    }
 }
 
 dependencies {
@@ -109,6 +117,16 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    // work manager
+     implementation "androidx.work:work-runtime-ktx:$work_manager_version"
+
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
+    testImplementation "org.mockito:mockito-inline:3.11.2"
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
+    testImplementation "androidx.room:room-testing:$roomDbVersion"
 
 //    //Hilt for di
 //    def hilt_version = "2.44.2"
