@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Paypay CurrencyConverter</string>
+    <string name="app_name"> Currency Exchange Rate</string>
 
     <string name="sign_up">Sign up</string>
     <string name="currency">Currency</string>
@@ -17,5 +17,5 @@
 
     <string name="title">All Currencies</string>
     <string name="converted_amount">Converted Amount</string>
-    <string name="enter_amount_here">Enter amount here...</string>
+    <string name="enter_amount_here">Enter amount here…</string>
 </resources>
